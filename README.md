@@ -20,7 +20,7 @@ http://site.com/bypass_disablefunc.php?**cmd**=pwd&**outpath**=/tmp/xx&**sopath*
 
 happy hacking! 
 <hr />
-
+ 
 千辛万苦拿到的 webshell 居然无法执行系统命令，怀疑服务端 disable_functions 禁用了命令执行函数，通过环境变量 LD_PRELOAD 劫持系统函数，却又发现目标根本没安装 sendmail，无法执行命令的 webshell 是无意义的，看我如何突破！ 
 
 一般而言，利用漏洞控制 web 启动新进程 a.bin（即便进程名无法让我随意指定），a.bin 内部调用系统函数 b()，b() 位于系统共享对象 c.so 中，所以系统为该进程加载共 c.so，想法在 c.so 前优先加载可控的 c_evil.so，c_evil.so 内含与 b() 同名的恶意函数，由于 c_evil.so 优先级较高，所以，a.bin 将调用到 c_evil.so 内 b() 而非系统的 c.so 内 b()，同时，c_evil.so 可控，达到执行恶意代码的目的。基于这一思路，常见突破 disable_functions 限制执行操作系统命令的方式为：
