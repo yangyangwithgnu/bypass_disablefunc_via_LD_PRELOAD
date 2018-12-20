@@ -1,5 +1,5 @@
 
-<h1 align="center">Bypass disable_functions via LD_PRELOAD</h1>
+<h1 align="center">bypass disable_functions via LD_PRELOAD</h1>
 <div align="center">
 <img src="https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD/blob/master/bruce_lee.jpg" alt=""/><br>
 </div>
@@ -23,7 +23,7 @@ http://site.com/bypass_disablefunc.php?cmd=pwd&outpath=/tmp/xx&sopath=/var/www/b
 happy hacking! 
 <hr />
  
-千辛万苦拿到的 webshell 居然无法执行系统命令，怀疑服务端 disable_functions 禁用了命令执行函数，通过环境变量 LD_PRELOAD 劫持系统函数，却又发现目标根本没安装 sendmail，无法执行命令的 webshell 是无意义的，看我如何突破！ 
+千辛万苦拿到的 webshell 居然无法执行系统命令，怀疑服务端 disable_functions 禁用了命令执行函数，通过环境变量 LD_PRELOAD 劫持系统函数，却又发现目标根本没安装 sendmail，无法执行命令的 webshell 是无意义的，得突破！ 
 
 一般而言，利用漏洞控制 web 启动新进程 a.bin（即便进程名无法让我随意指定），a.bin 内部调用系统函数 b()，b() 位于系统共享对象 c.so 中，所以系统为该进程加载共 c.so，想法在 c.so 前优先加载可控的 c_evil.so，c_evil.so 内含与 b() 同名的恶意函数，由于 c_evil.so 优先级较高，所以，a.bin 将调用到 c_evil.so 内 b() 而非系统的 c.so 内 b()，同时，c_evil.so 可控，达到执行恶意代码的目的。基于这一思路，常见突破 disable_functions 限制执行操作系统命令的方式为：
   * 编写一个原型为 uid_t getuid(void); 的 C 函数，内部执行攻击者指定的代码，并编译成共享对象 getuid_shadow.so；
@@ -41,7 +41,7 @@ http://site.com/bypass_disablefunc.php?cmd=pwd&outpath=/tmp/xx&sopath=/var/www/b
 ```
 一是 cmd 参数，待执行的系统命令（如 pwd）；二是 outpath 参数，保存命令执行输出结果的文件路径（如 /tmp/xx），便于在页面上显示，另外该参数，你应注意 web 是否有读写权限、web 是否可跨目录访问、文件将被覆盖和删除等几点；三是 sopath 参数，指定劫持系统函数的共享对象的绝对路径（如 /var/www/bypass_disablefunc_x64.so），另外关于该参数，你应注意 web 是否可跨目录访问到它。此外，bypass_disablefunc.php 拼接命令和输出路径成为完整的命令行，所以你不用在 cmd 参数中重定向。
 
-bypass_disablefunc_x64.so 为执行命令的共享对象，用命令 gcc -shared -fPIC bypass_disablefunc.c -o bypass_disablefunc_x64.so 将 bypass_disablefunc.c 编译而来。
+bypass_disablefunc_x64.so 为执行命令的共享对象，用命令 `gcc -shared -fPIC bypass_disablefunc.c -o bypass_disablefunc_x64.so` 将 bypass_disablefunc.c 编译而来。
 若目标为 x86 架构，需要加上 -m32 选项重新编译。
 
 想办法将 bypass_disablefunc.php 和 bypass_disablefunc_x64.so 传到目标，指定好三个 GET 参数后，bypass_disablefunc.php 即可突破 disable_functions 成功执行命令：
