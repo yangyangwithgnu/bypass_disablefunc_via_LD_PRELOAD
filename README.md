@@ -16,7 +16,9 @@ don't worry, I found a new way, whatever sendmail existence, red team always byp
 there are two key files in this repository, bypass_disablefunc.php and bypass_disablefunc_x64.so. 
 
 There are three GET options of bypass_disablefunc.php: cmd, outpath and sopath. the options are pretty straightforward, cmd is your evil command, outpath is command output file path (readable and writeable), sopath is the absolute path where our share object bypass_disablefunc_x64.so. For example:
+```
 http://site.com/bypass_disablefunc.php?**cmd**=pwd&**outpath**=/tmp/xx&**sopath**=/var/www/bypass_disablefunc_x64.so
+```
 
 happy hacking! 
 <hr />
@@ -29,12 +31,14 @@ happy hacking!
   * 运行 PHP 的 mail() 函数，mail() 内部启动新进程 /usr/sbin/sendmail，由于上一步 LD_PRELOAD 的作用，sendmail 调用的系统函数 getuid() 被优先级更好的 getuid_shadow.so 中的同名 getuid() 所劫持；
   * 达到不调用 PHP 的各种命令执行函数（system()、exec() 等等）仍可执行系统命令的目的。
 
-之所以劫持 getuid()，是因为 sendmail 程序会调用该函数（当然也可以更好为其他被调用的系统函数），在真实环境中，存在两方面问题：一是，某些环境中，web 禁止启用 senmail、甚至系统上根本未安装 sendmail，也就谈不上劫持 getuid()，通常的 www-data 权限又不可能去更改 php.ini 配置、去安装 sendmail 软件；二是，即便目标可以启用 sendmail，由于未将主机名（hostname 输出）添加进 hosts 中，导致每次运行 sendmail 都要耗时半分钟等待域名解析超时返回，www-data 也无法将主机名加入 hosts（如，127.0.0.1	lamp、lamp.、lamp.com）。基于这两个原因，我不得不放弃劫持函数 getuid()，必须找个更普适的方法。回到 LD_PRELOAD 本身，系统通过它预先加载共享对象，如果能找到一个方式，在加载时就执行代码，而不用考虑劫持某一系统函数，那我就完全可以不依赖 sendmail 了。这种场景与 C++ 的构造函数简直神似！几经搜索后了解到，GCC 有个 C 语言扩展修饰符 __attribute__((constructor))，可以让由它修饰的函数在 main() 之前执行，若它出现在共享对象中时，那么一旦共享对象被系统加载，立即将执行 __attribute__((constructor)) 修饰的函数。这一细节非常重要，很多朋友用 LD_PRELOAD 手法突破 disable_functions 无法做到百分百成功，正因为这个原因，**不要局限于仅劫持某一函数，而应考虑劫持共享对象，或者说，拦劫加载共享对象这一动作**。
+之所以劫持 getuid()，是因为 sendmail 程序会调用该函数（当然也可以为其他被调用的系统函数），在真实环境中，存在两方面问题：一是，某些环境中，web 禁止启用 senmail、甚至系统上根本未安装 sendmail，也就谈不上劫持 getuid()，通常的 www-data 权限又不可能去更改 php.ini 配置、去安装 sendmail 软件；二是，即便目标可以启用 sendmail，由于未将主机名（hostname 输出）添加进 hosts 中，导致每次运行 sendmail 都要耗时半分钟等待域名解析超时返回，www-data 也无法将主机名加入 hosts（如，127.0.0.1	lamp、lamp.、lamp.com）。基于这两个原因，我不得不放弃劫持函数 getuid()，必须找个更普适的方法。回到 LD_PRELOAD 本身，系统通过它预先加载共享对象，如果能找到一个方式，在加载时就执行代码，而不用考虑劫持某一系统函数，那我就完全可以不依赖 sendmail 了。这种场景与 C++ 的构造函数简直神似！几经搜索后了解到，GCC 有个 C 语言扩展修饰符 __attribute__((constructor))，可以让由它修饰的函数在 main() 之前执行，若它出现在共享对象中时，那么一旦共享对象被系统加载，立即将执行 __attribute__((constructor)) 修饰的函数。这一细节非常重要，很多朋友用 LD_PRELOAD 手法突破 disable_functions 无法做到百分百成功，正因为这个原因，**不要局限于仅劫持某一函数，而应考虑劫持共享对象，或者说，拦劫加载共享对象这一动作**。
 
 本项目中有两个关键文件，bypass_disablefunc.php 和 bypass_disablefunc_x64.so。 
 
 bypass_disablefunc.php 为命令执行 webshell，提供三个 GET 参数：
+```
 http://site.com/bypass_disablefunc.php?cmd=pwd&outpath=/tmp/xx&sopath=/var/www/bypass_disablefunc_x64.so
+```
 一是 cmd 参数，待执行的系统命令（如 pwd）；二是 outpath 参数，保存命令执行输出结果的文件路径（如 /tmp/xx），便于在页面上显示，另外该参数，你应注意 web 是否有读写权限、web 是否可跨目录访问、文件将被覆盖和删除等几点；三是 sopath 参数，指定劫持系统函数的共享对象的绝对路径（如 /var/www/bypass_disablefunc_x64.so），另外关于该参数，你应注意 web 是否可跨目录访问到它。此外，bypass_disablefunc.php 拼接命令和输出路径成为完整的命令行，所以你不用在 cmd 参数中重定向。
 
 bypass_disablefunc_x64.so 为执行命令的共享对象，用命令 gcc -shared -fPIC bypass_disablefunc.c -o bypass_disablefunc_x64.so 将 bypass_disablefunc.c 编译而来。
