@@ -50,4 +50,5 @@ bypass_disablefunc_x64.so 为执行命令的共享对象，用命令 gcc -shared
 </div>
 <hr />
 
-papers：[《无需 sendmail：巧用 LD_PRELOAD 突破 disable_functions》]: https://www.freebuf.com/web/192052.html 
+papers：[《无需 sendmail：巧用 LD_PRELOAD 突破 disable_functions》](https://www.freebuf.com/web/192052.html  "《无需 sendmail：巧用 LD_PRELOAD 突破 disable_functions》")
+
