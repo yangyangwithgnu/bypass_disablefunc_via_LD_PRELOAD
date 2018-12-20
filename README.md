@@ -17,7 +17,7 @@ there are two key files in this repository, bypass_disablefunc.php and bypass_di
 
 There are three GET options of bypass_disablefunc.php: cmd, outpath and sopath. the options are pretty straightforward, cmd is your evil command, outpath is command output file path (readable and writeable), sopath is the absolute path where our share object bypass_disablefunc_x64.so. For example:
 ```
-http://site.com/bypass_disablefunc.php?**cmd**=pwd&**outpath**=/tmp/xx&**sopath**=/var/www/bypass_disablefunc_x64.so
+http://site.com/bypass_disablefunc.php?cmd=pwd&outpath=/tmp/xx&sopath=/var/www/bypass_disablefunc_x64.so
 ```
 
 happy hacking! 
