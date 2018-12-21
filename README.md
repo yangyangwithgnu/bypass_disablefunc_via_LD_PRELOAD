@@ -67,8 +67,8 @@ bypass_disablefunc_x64.so 为执行命令的共享对象，用命令 `gcc -share
 <hr />
 
 已知问题：
-1）不同目标环境可能需要重新编译共享对象。本项目中的 bypass_disablefunc_x64.so 是在 debian、x64 下编译的，在非 debian 系可能需要重新编译；
-2）bypass_disablefunc.php 需要对 outpath 指定的路径具有读写权限，若目标开启 SELinux 可能阻止 web 账号写文件。如，你用 apache 身份运行 id，输出 `uid=48(apache) gid=48(apache) groups=48(apache) context=system_u:system_r:httpd_t:s0`，看到最后的 `context=system_u:system_r:httpd_t:s0` 没，就是 SELinux 在作祟。
+  * 1）不同目标环境可能需要重新编译共享对象。本项目中的 bypass_disablefunc_x64.so 是在 debian、x64 下编译的，在非 debian 系可能需要重新编译；
+  * 2）bypass_disablefunc.php 需要对 outpath 指定的路径具有读写权限，若目标开启 SELinux 可能阻止 web 账号写文件。如，你用 apache 身份运行 id，输出 `uid=48(apache) gid=48(apache) groups=48(apache) context=system_u:system_r:httpd_t:s0`，看到最后的 `context=system_u:system_r:httpd_t:s0` 没，就是 SELinux 在作祟。
 
 papers：[《无需 sendmail：巧用 LD_PRELOAD 突破 disable_functions》](https://www.freebuf.com/web/192052.html  "《无需 sendmail：巧用 LD_PRELOAD 突破 disable_functions》")
 
