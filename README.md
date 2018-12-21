@@ -60,7 +60,7 @@ bypass_disablefunc_x64.so 为执行命令的共享对象，用命令 `gcc -share
 <div align="center">
 <img src="https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD/blob/master/%E6%88%90%E5%8A%9F%E7%BB%95%E8%BF%87%20disable_functions.png" alt=""/><br>
 </div>
-执行 `id`：
+执行 id：
 <div align="center">
 <img src="https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD/blob/master/%E7%AA%81%E7%A0%B4%20disable_functions%20%E6%88%90%E5%8A%9F%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4.png" alt=""/><br>
 </div>
