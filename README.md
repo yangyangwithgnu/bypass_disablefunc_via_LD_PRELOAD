@@ -9,7 +9,7 @@ blue guys, I'm sorry, red team wins **agaaaain**.
 
 I know, you disabling all dangerous functions, run operating system commands, such as system() or exec() or shell_exec() and even less known functions such as dl(), through the PHP director defined in php.ini. 
 
-Everybody knows, unix-like supply LD_PRELOAD variable，to provides the possibility of pre-load a share object (*.so) before the others. so I'd like to be able to inject some code into an application. In PHP, the mail() function startups /usr/sbin/sendmail inside, script kiddy hooks some system API in sendmail (such as getuid()) to inject evil code, not bad, BUT if bluuue guys uninstall sendmail tool, now, what you say?
+Everybody knows, unix-like supply LD_PRELOAD variable，to provides the possibility of pre-load a share object (*.so) before the others. so I'd like to be able to inject some code into an application. In PHP, the mail() function startups /usr/sbin/sendmail inside, script kiddy hooks some system API in sendmail (such as getuid()) to inject evil code, not bad, **BUT** if bluuuue guys uninstall sendmail tool, now, what you say?
 
 don't worry, I found a new way, whatever sendmail existence, red team always bypass disable_functions via LD_PRELOAD. 
 
@@ -19,6 +19,8 @@ There are three GET options of bypass_disablefunc.php: cmd, outpath and sopath. 
 ```
 http://site.com/bypass_disablefunc.php?cmd=pwd&outpath=/tmp/xx&sopath=/var/www/bypass_disablefunc_x64.so
 ```
+
+BTW, bypass_disablefunc.php bypasses common anti-webshell tools, **evasion** is always good. so, bypass_disablefunc.php is your friend in any environment.
 
 happy hacking! 
 <hr />
@@ -65,6 +67,19 @@ bypass_disablefunc_x64.so 为执行命令的共享对象，用命令 `gcc -share
 <img src="https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD/blob/master/%E7%AA%81%E7%A0%B4%20disable_functions%20%E6%88%90%E5%8A%9F%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4.png" alt=""/><br>
 </div>
 <hr />
+
+此外，针对 wehshell 的查杀，一般是围绕代码执行函数（如 eval()）、命令执行函数（如 system()）、断言函数（如 assert()）开展的，而 bypass_disablefunc.php 这个 webshell 的本意是突破 disable_functions 执行命令，代码中无任何 webshell 特征函数，所以，副作用是，**它能免杀**。换言之，即便目标并未用 disable_functions 限制命令执行函数，你仍可将 bypass_disablefunc.php 视为普通小马来用，它能躲避后门查杀工具。过 D 盾：
+<div align="center">
+<img src="https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD/blob/master/D%20%E7%9B%BE.png" alt=""/><br>
+</div>
+过牧云（长亭雷池的开源版）：
+<div align="center">
+<img src="https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD/blob/master/%E7%89%A7%E4%BA%91.png" alt=""/><br>
+</div>
+过万国查杀的 YARA（基于特征规则），YARA 提示用户关注，未直接判断为后门:
+<div align="center">
+<img src="https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD/blob/master/YARA.png" alt=""/><br>
+</div>
 
 已知问题：
   * 1）不同目标环境可能需要重新编译共享对象。本项目中的 bypass_disablefunc_x64.so 是在 debian、x64 下编译的，在非 debian 系可能需要重新编译；
